@@ -42,10 +42,10 @@ public class TempThread implements Runnable {
 			
 			if (Status.heaterOn && temp == null || !temp.isTempValidValue()) {
 				Date now = new Date();//if running more than 15 min with invalid temp, shut off
-				if (now.getTime() - prevHeaterReading.getTime() > (60000 * 15)) {
+				if (now.getTime() - prevHeaterReading.getTime() > (60000 * 20)) {
 					heatPin.low();
 					Status.heaterOn = false;
-					log.trace("More than 15 min and invalid value from temp sensor. Shutting down. " + temp.getTemp());
+					log.debug("More than 20 min and invalid value from temp sensor. Shutting down. " + temp.getTemp());
 				}
 			}
 			
@@ -54,13 +54,13 @@ public class TempThread implements Runnable {
 				Config cfg = GerdenServer.getConfig();
 				
 				if (temp.getTempDouble() > (cfg.getMaintainTempAt() + 1) && Status.heaterOn ){
-					log.trace("Heater off. temp: " + temp.getTemp());
+					log.debug("Heater off. temp: " + temp.getTemp());
 					//turn heater off
 					Status.heaterOn = false;
 					heatPin.low();
 					GerdenServer.display("Heat Off" , ""); //LCD display
 				}else if (temp.getTempDouble() < (cfg.getMaintainTempAt() - 1) && !Status.heaterOn){
-					log.trace("Heater on. temp: " + temp.getTemp());
+					log.debug("Heater on. temp: " + temp.getTemp());
 
 					//turn heater on
 					Status.heaterOn = true; 
@@ -109,12 +109,14 @@ public class TempThread implements Runnable {
 					log.debug("failed reading temp: " + result);
 					tmp = new Temperature();
 					tmp.setTempValidValue(false);
+					tmp.setLastUpdated(new Date());
 				}else {
 					String th[] = result.split("\\s+");
 					tmp = new Temperature();
 					tmp.setTemp(th[0]);
 					tmp.setHumidity(th[1]);
 					tmp.setTempValidValue(true);
+					tmp.setLastUpdated(new Date());
 					prevHeaterReading = new Date();
 					
 				}
@@ -122,6 +124,7 @@ public class TempThread implements Runnable {
 				log.debug("failed reading temp. Result null. Could be timeout ");
 				tmp = new Temperature();
 				tmp.setTempValidValue(false);
+				tmp.setLastUpdated(new Date());
 			}
 		}catch(IOException iex) {
 			log.error("Erorr in tmp", iex);

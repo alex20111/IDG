@@ -16,6 +16,7 @@ import net.idg.GerdenServer;
 import net.idg.bean.Config;
 import net.idg.bean.Status;
 import net.idg.thread.FanThread;
+import net.idg.thread.LcdThread;
 import net.idg.thread.LightsThread;
 import net.idg.thread.ServerThread;
 import net.idg.thread.TempThread;
@@ -51,7 +52,12 @@ public class ScheduleManager {
 		log.debug("Stopping lights schedule");
 		if (lightSched != null ){
 			lightSched.cancel(true); 
-		} }
+		}
+		try {
+			Thread.sleep(2000); //added to let time for the lights to turn off and on properly.
+		} catch (InterruptedException e) {	
+		}
+	}
 	public void startTemperature(int initialDelaySeconds, int delaySeconds, boolean monitor){
 		log.debug("Start Temperature schedule"); 
 		tempSched = scheduledService.scheduleWithFixedDelay(new TempThread(monitor, heatPin), initialDelaySeconds,
@@ -93,7 +99,10 @@ public class ScheduleManager {
 			fanSched.cancel(true);
 		}
 	}
-	
+	public void startLcdMonitor(){
+		log.debug("Start LCD monitor");
+		fanSched = scheduledService.scheduleWithFixedDelay(new LcdThread(),0,10,TimeUnit.MINUTES);
+	}
 	
 	public void startRestartSchedules(){
 		Config config = GerdenServer.getConfig(); 
@@ -101,9 +110,11 @@ public class ScheduleManager {
 		int tempRefreshIntervalSec = 5; 
 		if (config != null){ 
 			if (config.isEnableFan()){
-				startFan(0, 10); }
+				startFan(0, 10); 
+				}
 			if (config.isEnableLights()){
-				startLights(); }
+				startLights();
+				}
 			if (config.isEnableThinkSpeak()){
 				startThinkSpeak(0, config.getThinkSpeakIntv()); 
 			}

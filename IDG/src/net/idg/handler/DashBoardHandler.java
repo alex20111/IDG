@@ -11,6 +11,7 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+import net.idg.bean.Status;
 import net.idg.bean.Temperature;
 import net.idg.thread.TempThread;
 
@@ -27,8 +28,11 @@ public class DashBoardHandler implements HttpHandler {
 		
 		String dashBoard = "<html><body><form action=\"/cfg\" > <input type=\"submit\" value=\"Config\"/> </form><br/><br/><b>Temp:</b>"
 							+tmp.getTemp()+"<br/>"
-							+ "<b>Humidity: </b>"+tmp.getHumidity()+"<br/>"
-							+ "<b>Last updated:</b> "+(tmp.getLastUpdated() != null ? sdf.format(tmp.getLastUpdated() ): "N/A")+"  </body></html>";
+							+ "<b>Humidity: </b>"+tmp.getHumidity()+"<br/>"							 
+							+ "<b>Light status:</b> "+ (Status.lightsOn ? " ON " : " Off ") +" <br/>"
+							+ "<b>Heater status:</b> "+(Status.heaterOn ? " On " : " Off ") + " <br/> "
+							+ "<b>Last updated:</b> "+(tmp.getLastUpdated() != null ? sdf.format(tmp.getLastUpdated() ): "N/A")+" <br/>"
+							+ " </body></html>";
 		
 		Headers h = t.getResponseHeaders(); 
 		h.add("Content-Type", "text/html"); 
