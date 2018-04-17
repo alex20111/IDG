@@ -29,7 +29,7 @@ public class GerdenServer {
 	private static final Logger log = LogManager.getLogger(GerdenServer.class);
 
 	public static String wpaSupplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"; //TODO change
-	public static I2CLcdDisplay lcd = null;
+	private static I2CLcdDisplay lcd = null;
 	
 	private static ScheduleManager schedManager;
 	private static Config cfg = null;
@@ -77,6 +77,9 @@ public class GerdenServer {
 	} 
 	public static synchronized ScheduleManager getSchedManager(){
 		return schedManager;
+	}
+	public static synchronized I2CLcdDisplay getLcd() {
+		return lcd;
 	}
 	public static synchronized void display(String line1, String line2){
 		if (lcd != null) {

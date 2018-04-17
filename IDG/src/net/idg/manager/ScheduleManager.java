@@ -16,7 +16,7 @@ import net.idg.GerdenServer;
 import net.idg.bean.Config;
 import net.idg.bean.Status;
 import net.idg.thread.FanThread;
-import net.idg.thread.LcdThread;
+import net.idg.thread.MultiPurposeThread;
 import net.idg.thread.LightsThread;
 import net.idg.thread.ServerThread;
 import net.idg.thread.TempThread;
@@ -46,6 +46,14 @@ public class ScheduleManager {
 	public void startLights(){
 		log.debug("Start lights schedule");
 		long delay = calculateLightDelay();
+		if (Status.initLights) {
+			Status.initLights = false;
+			if (lightPin.isHigh() && delay > 0) {
+				lightPin.low();
+				Status.lightsOn = false;
+			}
+		}
+		
 		lightSched = scheduledService.schedule(new LightsThread(lightPin), delay,TimeUnit.MILLISECONDS);
 	} 
 	public void stopLights(){
@@ -101,7 +109,7 @@ public class ScheduleManager {
 	}
 	public void startLcdMonitor(){
 		log.debug("Start LCD monitor");
-		fanSched = scheduledService.scheduleWithFixedDelay(new LcdThread(),0,10,TimeUnit.MINUTES);
+		fanSched = scheduledService.scheduleWithFixedDelay(new MultiPurposeThread(),0,10,TimeUnit.MINUTES);
 	}
 	
 	public void startRestartSchedules(){
@@ -111,10 +119,12 @@ public class ScheduleManager {
 		if (config != null){ 
 			if (config.isEnableFan()){
 				startFan(0, 10); 
-				}
+			}
 			if (config.isEnableLights()){
 				startLights();
-				}
+			}else if(lightPin.isHigh()) {
+				lightPin.low();
+			}
 			if (config.isEnableThinkSpeak()){
 				startThinkSpeak(0, config.getThinkSpeakIntv()); 
 			}
@@ -135,13 +145,13 @@ public class ScheduleManager {
 			Status.fanOn = false; ///TODO then turn them off through GPIO
 			fanPin.low();
 		} 
-		if (Status.heaterOn){ 
-			Status.heaterOn = false; //TODO then turn themoff
-			heatPin.low();
-		}
+//		if (Status.heaterOn){ 
+//			Status.heaterOn = false; 
+////			heatPin.low();
+//		}
 		if (Status.lightsOn){
-			Status.lightsOn = false; //TODO then turn them off
-			lightPin.low();
+			Status.lightsOn = false; 
+//			lightPin.low();
 		}
 		try {
 			Thread.sleep(500);
@@ -178,7 +188,7 @@ public class ScheduleManager {
 			start.add(Calendar.DAY_OF_MONTH, 1);
 			delay = start.getTimeInMillis() - now.getTimeInMillis();
 			}
-			Status.initLights = false;
+//			Status.initLights = false;
 			log.debug("Delay date: " + new Date(new Date().getTime() + delay));
 		}
 		return delay; 

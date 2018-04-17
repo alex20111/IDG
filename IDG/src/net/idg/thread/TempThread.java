@@ -67,7 +67,11 @@ public class TempThread implements Runnable {
 					heatPin.high();
 					GerdenServer.display("Heat On" , "");
 				} 
+			}else if (Status.heaterOn || heatPin.isHigh()) {
+				//no monitor , just verify that the heater is really turned off
+				heatPin.low();
 			}
+			
 			if (!GerdenServer.isConfigPresent()){
 				pause(5000);
 				String line2 = "";
