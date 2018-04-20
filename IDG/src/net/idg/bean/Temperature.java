@@ -28,6 +28,9 @@ public class Temperature {
 	public double getTempDouble() {
 		return this.temp != null && this.temp.length() > 0 ? Double.parseDouble(this.temp) : 0.0d; 
 	}	
+	public double getHumidityDouble() {
+		return this.humidity != null && this.humidity.length() > 0 ? Double.parseDouble(this.humidity) : 0.0d; 
+	}
 
 	public boolean isTempValidValue() {
 		return tempValidValue;

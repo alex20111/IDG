@@ -61,10 +61,6 @@ public class ScheduleManager {
 		if (lightSched != null ){
 			lightSched.cancel(true); 
 		}
-		try {
-			Thread.sleep(2000); //added to let time for the lights to turn off and on properly.
-		} catch (InterruptedException e) {	
-		}
 	}
 	public void startTemperature(int initialDelaySeconds, int delaySeconds, boolean monitor){
 		log.debug("Start Temperature schedule"); 
@@ -105,6 +101,7 @@ public class ScheduleManager {
 		log.debug("Stopping Fan schedule");
 		if (fanSched != null ){
 			fanSched.cancel(true);
+			log.debug("Fan schedule Stopped");
 		}
 	}
 	public void startLcdMonitor(){
@@ -118,7 +115,7 @@ public class ScheduleManager {
 		int tempRefreshIntervalSec = 5; 
 		if (config != null){ 
 			if (config.isEnableFan()){
-				startFan(0, 10); 
+				startFan(0, 1); 
 			}
 			if (config.isEnableLights()){
 				startLights();
@@ -153,9 +150,7 @@ public class ScheduleManager {
 			Status.lightsOn = false; 
 //			lightPin.low();
 		}
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) { }
+
 	}
 	private long calculateLightDelay(){
 		long delay = -1;

@@ -6,11 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 
 import com.pi4j.component.lcd.impl.I2CLcdDisplay;
 import com.pi4j.io.gpio.GpioController;
@@ -34,10 +31,14 @@ public class GerdenServer {
 	private static ScheduleManager schedManager;
 	private static Config cfg = null;
 	private static boolean configPresent = false; //control vars
+	
+	private static GpioPinDigitalOutput lightPin = null;
+	private static GpioPinDigitalOutput heatPin = null;
+	private static GpioPinDigitalOutput fanPin = null;
 		
 	
 	public static void main(String[] args) throws InterruptedException {
-		logger();
+//		logger();
 		
 		log.debug("Starting program");
 		
@@ -49,16 +50,16 @@ public class GerdenServer {
 			lcd.clear();
 			lcd.write(0, "Garden Monitor");
 			lcd.write(1, "By Alex. B.");
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 		} catch (Exception e) {
 			log.error("Error initializing the LCD. " , e);
 		}
 //		
-		final GpioPinDigitalOutput lightPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_23, "Lights", PinState.LOW);
-		final GpioPinDigitalOutput heatPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_24, "heater", PinState.LOW);
-		final GpioPinDigitalOutput fanPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "fan", PinState.LOW);
+		lightPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_23, "Lights", PinState.LOW);
+	    heatPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_24, "heater", PinState.LOW);
+		fanPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "fan", PinState.LOW);
 		
-
+		shutDownHook();
 		
 		schedManager = new ScheduleManager(heatPin, lightPin, fanPin);//pass gpio here for schedules ' l
 		schedManager.startWebServer();
@@ -128,24 +129,46 @@ public class GerdenServer {
 			cfg.setThinkSpeakIntv(Integer.parseInt(prop.getProperty(Config.TS_FREQ)));
 			cfg.setLightsStartTime(Integer.parseInt(prop.getProperty(Config.LIGHT_START)));
 			cfg.setLightsStopTime(Integer.parseInt(prop.getProperty(Config.LIGHT_END)));
+			
 			configPresent = true; 
 		}catch(IOException ex){ 
 			log.error("Error in loadConfig", ex);
 		}
 		log.debug("loadConfig: " + cfg);
 	}
+	private static void shutDownHook() {
+		Runtime.getRuntime().addShutdownHook(new Thread() {
 
-private static void logger() {
-	//This is the root logger provided by log4j
-	Logger rootLogger = Logger.getRootLogger();
-	rootLogger.setLevel(Level.DEBUG);
-	 
-	//Define log pattern layout
-	PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
-	 
-	//Add console appender to root logger
-	rootLogger.addAppender(new ConsoleAppender(layout));	
-	
-	
-	
-}}
+			@Override
+			public void run() {
+				log.debug("Shutting down!!");
+				//clear lcd
+				lcd.clear();
+				try {
+					lcd.setBacklight(false, true);
+				} catch (IOException e) {}
+				//all pins low.
+				lightPin.low();
+				heatPin.low();
+				fanPin.low();
+				
+			}
+			
+			
+		});
+	}
+//private static void logger() {
+//	//This is the root logger provided by log4j
+//	Logger rootLogger = Logger.getRootLogger();
+//	rootLogger.setLevel(Level.DEBUG);
+//	 
+//	//Define log pattern layout
+//	PatternLayout layout = new PatternLayout("%d{ISO8601} [%t] %-5p %c %x - %m%n");
+//	 
+//	//Add console appender to root logger
+//	rootLogger.addAppender(new ConsoleAppender(layout));	
+//	
+//	
+//	
+//}
+}

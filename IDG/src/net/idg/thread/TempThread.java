@@ -21,7 +21,7 @@ public class TempThread implements Runnable {
 	private static Temperature temp = new Temperature();
 	private GpioPinDigitalOutput heatPin = null;
 	
-	private static Date prevHeaterReading = null;
+	private static Date prevHeaterOn = null;
 	
 	private static Date dispTempPrev = null;
 
@@ -33,19 +33,19 @@ public class TempThread implements Runnable {
 	@Override
 	public void run() { 
 		try{ 
-			if (prevHeaterReading == null) {
-				prevHeaterReading = new Date();
+			if (prevHeaterOn == null) {
+				prevHeaterOn = new Date();
 				dispTempPrev = new Date();
 			}
 			
 			temp = queryTemperature();
 			
-			if (Status.heaterOn && temp == null || !temp.isTempValidValue()) {
+			if (Status.heaterOn ) {
 				Date now = new Date();//if running more than 15 min with invalid temp, shut off
-				if (now.getTime() - prevHeaterReading.getTime() > (60000 * 20)) {
+				if (now.getTime() - prevHeaterOn.getTime() > (60000 * 30)) {
 					heatPin.low();
 					Status.heaterOn = false;
-					log.debug("More than 20 min and invalid value from temp sensor. Shutting down. " + temp.getTemp());
+					log.debug("Heater has been running more than 30 min. Shutting down. " + temp.getTemp());
 				}
 			}
 			
@@ -62,13 +62,15 @@ public class TempThread implements Runnable {
 				}else if (temp.getTempDouble() < (cfg.getMaintainTempAt() - 1) && !Status.heaterOn){
 					log.debug("Heater on. temp: " + temp.getTemp());
 
+					prevHeaterOn = new Date();//start timer
 					//turn heater on
 					Status.heaterOn = true; 
 					heatPin.high();
 					GerdenServer.display("Heat On" , "");
 				} 
-			}else if (Status.heaterOn || heatPin.isHigh()) {
+			}else if (temp != null && (Status.heaterOn || heatPin.isHigh())) {
 				//no monitor , just verify that the heater is really turned off
+				Status.heaterOn = false;
 				heatPin.low();
 			}
 			
@@ -121,7 +123,6 @@ public class TempThread implements Runnable {
 					tmp.setHumidity(th[1]);
 					tmp.setTempValidValue(true);
 					tmp.setLastUpdated(new Date());
-					prevHeaterReading = new Date();
 					
 				}
 			}else {
