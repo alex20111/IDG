@@ -104,7 +104,7 @@ public class ScheduleManager {
 			log.debug("Fan schedule Stopped");
 		}
 	}
-	public void startLcdMonitor(){
+	public void MultiPurposeThread(){
 		log.debug("Start LCD monitor");
 		fanSched = scheduledService.scheduleWithFixedDelay(new MultiPurposeThread(),0,10,TimeUnit.MINUTES);
 	}

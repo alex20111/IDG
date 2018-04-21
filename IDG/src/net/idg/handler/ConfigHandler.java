@@ -1,12 +1,10 @@
 package net.idg.handler;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -20,6 +18,7 @@ import net.idg.GerdenServer;
 import net.idg.bean.Config;
 import net.idg.bean.HtmlPageText;
 import net.idg.bean.Status;
+import net.idg.db.ConfigSql;
 import net.idg.utils.ReadWrite;
 import net.idg.utils.ServerUtils;
 
@@ -83,24 +82,35 @@ public class ConfigHandler implements HttpHandler {
 		os.close();
 }
 	private void saveConfig(Map<String, String> query) throws IOException{
-		Properties prop = new Properties();
-		OutputStream output = new FileOutputStream("cfgFile.cfg"); 
-		prop.setProperty(Config.ENABLE_FAN,query.get(Config.ENABLE_FAN) != null ? "true" : "false");
-		prop.setProperty(Config.ENABLE_LIGHTS,query.get(Config.ENABLE_LIGHTS) != null ? "true" : "false" );
-		prop.setProperty(Config.ENABLE_TEMP,query.get(Config.ENABLE_TEMP) != null ? "true" : "false");
-		prop.setProperty(Config.ENB_THINK_SPEAK,query.get(Config.ENB_THINK_SPEAK) != null ? "true" : "false");
-		prop.setProperty(Config.ENB_WIRELESS,query.get(Config.ENB_WIRELESS) != null ? "true" : "false");
-		prop.setProperty(Config.MAINTAIN_TEMP,query.get(Config.MAINTAIN_TEMP));
-		prop.setProperty(Config.PASS,query.get(Config.PASS).trim().length() != 0 ? query.get(Config.PASS) : "");
-		prop.setProperty(Config.SSID,query.get(Config.ENB_WIRELESS) != null ? query.get(Config.SSID): "");
-		prop.setProperty(Config.LIGHT_START,query.get(Config.LIGHT_START)); 
-		prop.setProperty(Config.LIGHT_END,query.get(Config.LIGHT_END));
-		prop.setProperty(Config.TS_API_KEY,query.get(Config.TS_API_KEY).trim().length() != 0 ? query.get(Config.TS_API_KEY) : "");
-		prop.setProperty(Config.TS_CHANNEL,query.get(Config.TS_CHANNEL).trim().length() != 0 ? query.get(Config.TS_CHANNEL) : "");
-		 prop.setProperty(Config.TS_FREQ,query.get(Config.TS_FREQ));
-		prop.store(output, null);
-		output.close();
-		GerdenServer.loadConfig(prop); 
+		
+		Config cfg = new Config();
+//		Properties prop = new Properties();
+//		OutputStream output = new FileOutputStream("cfgFile.cfg"); 
+		cfg.setEnableFan(query.get(Config.ENABLE_FAN) != null ? true : false);
+		cfg.setEnableLights(query.get(Config.ENABLE_LIGHTS) != null ? true : false );
+		cfg.setEnableTempMon(query.get(Config.ENABLE_TEMP) != null ? true : false);
+		cfg.setEnableThinkSpeak(query.get(Config.ENB_THINK_SPEAK) != null ? true : false);
+		cfg.setEnableWireless(query.get(Config.ENB_WIRELESS) != null ? true : false);
+		cfg.setMaintainTempAt(Integer.parseInt(query.get(Config.MAINTAIN_TEMP)));
+		cfg.setPassword(query.get(Config.PASS).trim().length() != 0 ? query.get(Config.PASS) : "");
+		cfg.setSsid(query.get(Config.ENB_WIRELESS) != null ? query.get(Config.SSID): "");
+		cfg.setLightsStartTime(Integer.parseInt(query.get(Config.LIGHT_START))); 
+		cfg.setLightsStopTime(Integer.parseInt(query.get(Config.LIGHT_END)));
+		cfg.setApiKey(query.get(Config.TS_API_KEY).trim().length() != 0 ? query.get(Config.TS_API_KEY) : "");
+		cfg.setChannel(query.get(Config.TS_CHANNEL).trim().length() != 0 ? query.get(Config.TS_CHANNEL) : "");
+		 cfg.setThinkSpeakIntv(Integer.parseInt(query.get(Config.TS_FREQ)));
+//		prop.store(output, null);
+//		output.close();
+		 ConfigSql sql = new ConfigSql();
+		 try {
+			sql.update(cfg);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		 
+		 
+		GerdenServer.loadConfig(); 
 	}
 	private List<String> getSSIDs(){
 

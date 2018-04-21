@@ -1,10 +1,7 @@
 package net.idg;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.sql.SQLException;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -19,6 +16,8 @@ import com.pi4j.io.i2c.I2CBus;
 
 import net.idg.bean.Config;
 import net.idg.bean.Status;
+import net.idg.db.ConfigSql;
+import net.idg.db.CreateTables;
 import net.idg.manager.ScheduleManager;
 
 public class GerdenServer {
@@ -37,10 +36,13 @@ public class GerdenServer {
 	private static GpioPinDigitalOutput fanPin = null;
 		
 	
-	public static void main(String[] args) throws InterruptedException {
+	public static void main(String[] args) throws InterruptedException, ClassNotFoundException, SQLException, IOException {
 //		logger();
 		
 		log.debug("Starting program");
+		
+		CreateTables crt = new CreateTables();
+		crt.createDbTables();
 		
 		final GpioController gpio = GpioFactory.getInstance();
 
@@ -54,18 +56,20 @@ public class GerdenServer {
 		} catch (Exception e) {
 			log.error("Error initializing the LCD. " , e);
 		}
-//		
+		
 		lightPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_23, "Lights", PinState.LOW);
 	    heatPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_24, "heater", PinState.LOW);
-		fanPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "fan", PinState.LOW);
+		fanPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_02, "fan", PinState.LOW);	
 		
 		shutDownHook();
+	
+		loadConfig();
 		
 		schedManager = new ScheduleManager(heatPin, lightPin, fanPin);//pass gpio here for schedules ' l
 		schedManager.startWebServer();
-		schedManager.startLcdMonitor();
-		loadConfig(null);
+		schedManager.MultiPurposeThread();	
 		schedManager.startRestartSchedules();
+		
 		if (cfg != null ){//move config ssid in current SSID if config is not null
 			Status.currentSSID = cfg.getSsid();
 		} 
@@ -102,37 +106,42 @@ public class GerdenServer {
 //		}
 
 	}
-	public static synchronized void loadConfig(Properties properties) {
+	public static synchronized void loadConfig() {
 		try{//load config file
-			Properties prop = null;
-			if(properties == null){
-				File configFile = new File("cfgFile.cfg");
-				if (configFile != null){
-					prop = new Properties();
-					InputStream input = new FileInputStream(configFile);
-					prop.load(input);
-				}
-			}else{
-				prop = properties;
-			} 
-			cfg = new Config();
-			cfg.setApiKey(prop.getProperty(Config.TS_API_KEY));
-			cfg.setChannel(prop.getProperty(Config.TS_CHANNEL));
-			cfg.setEnableFan(Boolean.valueOf(prop.getProperty(Config.ENABLE_FAN)));
-			cfg.setEnableLights(Boolean.valueOf(prop.getProperty(Config.ENABLE_LIGHTS)));
-			cfg.setEnableTempMon(Boolean.valueOf(prop.getProperty(Config.ENABLE_TEMP)));
-			cfg.setEnableThinkSpeak(Boolean.valueOf(prop.getProperty(Config.ENB_THINK_SPEAK)));
-			cfg.setEnableWireless(Boolean.valueOf(prop.getProperty(Config.ENB_WIRELESS)));
-			cfg.setMaintainTempAt(Integer.parseInt(prop.getProperty(Config.MAINTAIN_TEMP)));
-			cfg.setPassword(prop.getProperty(Config.PASS));
-			cfg.setSsid(prop.getProperty(Config.SSID));
-			cfg.setThinkSpeakIntv(Integer.parseInt(prop.getProperty(Config.TS_FREQ)));
-			cfg.setLightsStartTime(Integer.parseInt(prop.getProperty(Config.LIGHT_START)));
-			cfg.setLightsStopTime(Integer.parseInt(prop.getProperty(Config.LIGHT_END)));
+//			Properties prop = null;
+//			if(properties == null){
+//				File configFile = new File("cfgFile.cfg");
+//				if (configFile != null){
+//					prop = new Properties();
+//					InputStream input = new FileInputStream(configFile);
+//					prop.load(input);
+//				}
+//			}else{
+//				prop = properties;
+//			} 
+//			cfg = new Config();
+//			cfg.setApiKey(prop.getProperty(Config.TS_API_KEY));
+//			cfg.setChannel(prop.getProperty(Config.TS_CHANNEL));
+//			cfg.setEnableFan(Boolean.valueOf(prop.getProperty(Config.ENABLE_FAN)));
+//			cfg.setEnableLights(Boolean.valueOf(prop.getProperty(Config.ENABLE_LIGHTS)));
+//			cfg.setEnableTempMon(Boolean.valueOf(prop.getProperty(Config.ENABLE_TEMP)));
+//			cfg.setEnableThinkSpeak(Boolean.valueOf(prop.getProperty(Config.ENB_THINK_SPEAK)));
+//			cfg.setEnableWireless(Boolean.valueOf(prop.getProperty(Config.ENB_WIRELESS)));
+//			cfg.setMaintainTempAt(Integer.parseInt(prop.getProperty(Config.MAINTAIN_TEMP)));
+//			cfg.setPassword(prop.getProperty(Config.PASS));
+//			cfg.setSsid(prop.getProperty(Config.SSID));
+//			cfg.setThinkSpeakIntv(Integer.parseInt(prop.getProperty(Config.TS_FREQ)));
+//			cfg.setLightsStartTime(Integer.parseInt(prop.getProperty(Config.LIGHT_START)));
+//			cfg.setLightsStopTime(Integer.parseInt(prop.getProperty(Config.LIGHT_END)));
+//			
+//			configPresent = true; 
 			
-			configPresent = true; 
-		}catch(IOException ex){ 
+			ConfigSql sql = new ConfigSql();
+			cfg = sql.loadConfig();
+			
+		}catch(Exception ex){ 
 			log.error("Error in loadConfig", ex);
+			cfg = new Config();
 		}
 		log.debug("loadConfig: " + cfg);
 	}

@@ -18,28 +18,28 @@
 	    </layout>
 	    <filter class="org.apache.log4j.varia.LevelRangeFilter">
 	    	<param name="levelMin" value="DEBUG"/>
-	    	<param name="levelMax" value="FATAL"/>
+	    	<param name="levelMax" value="DEBUG"/>
 	    </filter>
 	</appender>
 	
-	<appender name="TRACE-FILE" class="org.apache.log4j.RollingFileAppender">
-		<param name="file" value="logs/trace.log"/>
+	<appender name="ERROR-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="file" value="logs/error.log"/>
 		<param name="MaxFileSize" value="1024KB"/>
 	    <layout class="org.apache.log4j.PatternLayout">
 		<param name="ConversionPattern" 
 		  value="%-5p [%d{ISO8601}][%t]%c(%F:%L)-%m%n"/>
 	    </layout>
 	    <filter class="org.apache.log4j.varia.LevelRangeFilter">
-	    	<param name="levelMin" value="TRACE"/>
-	    	<param name="levelMax" value="TRACE"/>
+	    	<param name="levelMin" value="ERROR"/>
+	    	<param name="levelMax" value="FATAL"/>
 	    </filter>
 	</appender>
 
 	<root>
-		<level value="TRACE" />
+		<level value="DEBUG" />
 		<appender-ref ref="console" />
 		<appender-ref ref="DEBUG-FILE" />
-		<appender-ref ref="TRACE-FILE" />
+		<appender-ref ref="ERROR-FILE" />
 	</root>
 
 </log4j:configuration>

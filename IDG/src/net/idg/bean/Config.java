@@ -1,6 +1,11 @@
 package net.idg.bean;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class Config {
+	
+	public static final String TBL_NM = "CONFIG";
 	public static final String ENB_WIRELESS = "enbWireless";
 	public static final String SSID = "ssidOption";
 	public static final String PASS = "ssidPassword" ;
@@ -29,6 +34,26 @@ public class Config {
 	private String channel  ="";
 	private String apiKey = "";
 	private String saveBtn = "";
+	
+	public Config() {}
+	public Config (ResultSet rs) throws SQLException {
+		enableWireless = rs.getBoolean(ENB_WIRELESS);
+		ssid = rs.getString(SSID);
+		password = rs.getString(PASS);
+		enableTempMon = rs.getBoolean(ENABLE_TEMP);; //enable
+		maintainTempAt = rs.getInt(MAINTAIN_TEMP);;
+		enableFan = rs.getBoolean(ENABLE_FAN);;
+		enableLights = rs.getBoolean(ENABLE_LIGHTS);;
+		lightsStartTime = rs.getInt(LIGHT_START);
+		lightsStopTime = rs.getInt(LIGHT_END);
+		enableThinkSpeak = rs.getBoolean(ENB_THINK_SPEAK);;
+		thinkSpeakIntv = rs.getInt(TS_FREQ); //in minutes
+		channel  =rs.getString(TS_CHANNEL);
+		apiKey = rs.getString(TS_API_KEY);
+		
+	}
+	
+	
 	public boolean isEnableWireless() {
 		return enableWireless;
 	}
@@ -112,5 +137,9 @@ public class Config {
 	}
 	public void setSaveBtn(String saveBtn) {
 		this.saveBtn = saveBtn;
+	}
+	
+	public static String checkIfTableExist() {
+		return "SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME ='"+TBL_NM+"'";
 	}
 }
