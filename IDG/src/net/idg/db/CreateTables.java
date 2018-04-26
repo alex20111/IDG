@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import net.idg.bean.Config;
+import net.idg.db.entity.Config;
 
 public class CreateTables {
 

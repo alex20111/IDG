@@ -14,10 +14,10 @@ import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.i2c.I2CBus;
 
-import net.idg.bean.Config;
 import net.idg.bean.Status;
 import net.idg.db.ConfigSql;
 import net.idg.db.CreateTables;
+import net.idg.db.entity.Config;
 import net.idg.manager.ScheduleManager;
 
 public class GerdenServer {
@@ -134,7 +134,7 @@ public class GerdenServer {
 //			cfg.setLightsStartTime(Integer.parseInt(prop.getProperty(Config.LIGHT_START)));
 //			cfg.setLightsStopTime(Integer.parseInt(prop.getProperty(Config.LIGHT_END)));
 //			
-//			configPresent = true; 
+			configPresent = true; 
 			
 			ConfigSql sql = new ConfigSql();
 			cfg = sql.loadConfig();

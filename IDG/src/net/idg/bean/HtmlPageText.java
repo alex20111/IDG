@@ -2,6 +2,8 @@ package net.idg.bean;
 
 import java.util.List;
 
+import net.idg.db.entity.Config;
+
 public class HtmlPageText {
 	private String configPageFooter = "</body> </html>";
 

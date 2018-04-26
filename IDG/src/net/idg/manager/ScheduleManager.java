@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 
 import net.idg.GerdenServer;
-import net.idg.bean.Config;
 import net.idg.bean.Status;
+import net.idg.db.entity.Config;
 import net.idg.thread.FanThread;
 import net.idg.thread.MultiPurposeThread;
 import net.idg.thread.LightsThread;

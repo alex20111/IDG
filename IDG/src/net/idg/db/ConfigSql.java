@@ -12,8 +12,8 @@ import org.apache.log4j.Logger;
 import home.db.ColumnType;
 import home.db.DBConnection;
 import home.db.DbClass;
-import net.idg.bean.Config;
 import net.idg.bean.Constants;
+import net.idg.db.entity.Config;
 
 public class ConfigSql {
 	
@@ -49,7 +49,9 @@ public class ConfigSql {
 				
 			}
 		}finally {
+			if (con != null) {
 			con.close();
+			}
 		}
 		
 		return exist;

@@ -15,10 +15,10 @@ import com.sun.net.httpserver.HttpHandler;
 
 import home.misc.Exec;
 import net.idg.GerdenServer;
-import net.idg.bean.Config;
 import net.idg.bean.HtmlPageText;
 import net.idg.bean.Status;
 import net.idg.db.ConfigSql;
+import net.idg.db.entity.Config;
 import net.idg.utils.ReadWrite;
 import net.idg.utils.ServerUtils;
 

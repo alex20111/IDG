@@ -1,4 +1,4 @@
-package net.idg.bean;
+package net.idg.db.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

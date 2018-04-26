@@ -10,9 +10,9 @@ import com.pi4j.io.gpio.GpioPinDigitalOutput;
 
 import home.misc.Exec;
 import net.idg.GerdenServer;
-import net.idg.bean.Config;
 import net.idg.bean.Status;
 import net.idg.bean.Temperature;
+import net.idg.db.entity.Config;
 import net.idg.utils.ServerUtils;
 
 public class TempThread implements Runnable { 
@@ -21,9 +21,9 @@ public class TempThread implements Runnable {
 	private static Temperature temp = new Temperature();
 	private GpioPinDigitalOutput heatPin = null;
 	
-	private static Date prevHeaterOn = null;
-	
-	private static Date dispTempPrev = null;
+	private static Date prevHeaterOn = null;	
+	private static Date prevTempReading = null;
+	private int delay = 60000; //in millis = 1 min
 
 	public TempThread(){}
 	public TempThread(boolean monitor, GpioPinDigitalOutput heatPin){
@@ -35,7 +35,7 @@ public class TempThread implements Runnable {
 		try{ 
 			if (prevHeaterOn == null) {
 				prevHeaterOn = new Date();
-				dispTempPrev = new Date();
+				prevTempReading = new Date();
 			}
 			
 			temp = queryTemperature();
@@ -141,9 +141,9 @@ public class TempThread implements Runnable {
 	}
 	
 	private void dispDate() {
-		if (new Date().getTime() - dispTempPrev.getTime() > 60000) {
+		if (new Date().getTime() - prevTempReading.getTime() > delay) {
 			log.debug("temp: " + temp.getTemp() + " " + temp.getHumidity());
-			dispTempPrev = new Date();
+			prevTempReading = new Date();
 		}
 	}
 }
