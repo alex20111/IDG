@@ -20,6 +20,7 @@ public class ConfigSql {
 	private static final Logger log = LogManager.getLogger(ConfigSql.class);
 	
 	public boolean CreateConfigTable() throws ClassNotFoundException, SQLException, IOException {
+		log.debug("Verifying Config table");
 		DBConnection con = null;
 		boolean exist = false;
 		try {

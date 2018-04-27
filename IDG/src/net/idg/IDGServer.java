@@ -20,9 +20,9 @@ import net.idg.db.CreateTables;
 import net.idg.db.entity.Config;
 import net.idg.manager.ScheduleManager;
 
-public class GerdenServer {
+public class IDGServer {
 
-	private static final Logger log = LogManager.getLogger(GerdenServer.class);
+	private static final Logger log = LogManager.getLogger(IDGServer.class);
 
 	public static String wpaSupplicant = "/etc/wpa_supplicant/wpa_supplicant.conf"; //TODO change
 	private static I2CLcdDisplay lcd = null;

@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 
-import net.idg.GerdenServer;
+import net.idg.IDGServer;
 import net.idg.bean.Status;
 import net.idg.db.entity.Config;
 import net.idg.thread.FanThread;
@@ -76,14 +76,14 @@ public class ScheduleManager {
 	public void startThinkSpeak(int initialDelayMinutes, int delayMinutes){
 		log.debug("Start ThinkSpeak schedule");
 		int channel = 0;
-		String channelStr = GerdenServer.getConfig().getChannel();
+		String channelStr = IDGServer.getConfig().getChannel();
 		
 		if (channelStr != null && channelStr.trim().length() > 0) {
 			channel = Integer.parseInt(channelStr);
 		}
 		
 		
-		thinkSpeakSched = scheduledService.scheduleWithFixedDelay(new ThinkSpeakThread(channel, GerdenServer.getConfig().getApiKey()),
+		thinkSpeakSched = scheduledService.scheduleWithFixedDelay(new ThinkSpeakThread(channel, IDGServer.getConfig().getApiKey()),
 				initialDelayMinutes, delayMinutes,TimeUnit.MINUTES); 
 	}
 	public void stopThinkSpeak(){ 
@@ -110,7 +110,7 @@ public class ScheduleManager {
 	}
 	
 	public void startRestartSchedules(){
-		Config config = GerdenServer.getConfig(); 
+		Config config = IDGServer.getConfig(); 
 		Status.initLights = true;
 		int tempRefreshIntervalSec = 5; 
 		if (config != null){ 
@@ -154,9 +154,9 @@ public class ScheduleManager {
 	}
 	private long calculateLightDelay(){
 		long delay = -1;
-		if (GerdenServer.getConfig() != null){
-			int startInMin = GerdenServer.getConfig().getLightsStartTime();
-			int stopInMin = GerdenServer.getConfig().getLightsStopTime();
+		if (IDGServer.getConfig() != null){
+			int startInMin = IDGServer.getConfig().getLightsStartTime();
+			int stopInMin = IDGServer.getConfig().getLightsStopTime();
 			Calendar now = Calendar.getInstance();
 			Calendar start = Calendar.getInstance();
 			start.set(Calendar.HOUR_OF_DAY, startInMin / 60);

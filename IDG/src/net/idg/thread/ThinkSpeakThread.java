@@ -16,11 +16,11 @@ public class ThinkSpeakThread  implements Runnable{
 	
 	private static final Logger log = LogManager.getLogger(ThinkSpeakThread.class);
 	
-	private int tsChannel = 0;
+
 	private String apiKey = "";
 	
 	public ThinkSpeakThread(int channel, String key) {
-		this.tsChannel = channel;
+		
 		this.apiKey = key;
 	}
 
@@ -42,18 +42,7 @@ public class ThinkSpeakThread  implements Runnable{
 			} catch (Exception e) {
 				log.error("Error writing to thingspeak" , e);
 			}
-//			Entry entry = new Entry();
-//
-//
-//			entry.setField(1, TempThread.getTemp().getTemp());
-//			try {
-//				channel.update(entry);
-//			} catch (UnirestException e) {
-//				log.error("error UnirestException", e );
-//
-//			} catch (ThingSpeakException e) {
-//				log.error("error ThingSpeakException", e );
-//			}
+
 		}else {
 			log.debug("Temp not valid: " + temp);
 		}

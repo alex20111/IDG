@@ -9,14 +9,14 @@ import java.nio.file.Paths;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import net.idg.GerdenServer;
+import net.idg.IDGServer;
 
 public class ReadWrite {
 	private static final Logger log = LogManager.getLogger(ReadWrite.class);
 	
 	public boolean updateAddWireless(String ssid, String passowrd, boolean delete) {
 		try{
-			Path path = Paths.get(GerdenServer.wpaSupplicant);
+			Path path = Paths.get(IDGServer.wpaSupplicant);
 			Charset charset = StandardCharsets.UTF_8; 
 			String content = new String(Files.readAllBytes(path), charset);
 			if (content.contains(ssid) || !content.contains("network=")){

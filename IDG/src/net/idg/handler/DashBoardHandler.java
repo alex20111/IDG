@@ -18,6 +18,7 @@ import net.idg.thread.TempThread;
 @SuppressWarnings("restriction")
 public class DashBoardHandler implements HttpHandler {
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = LogManager.getLogger(DashBoardHandler.class);
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	@Override

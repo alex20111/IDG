@@ -10,7 +10,7 @@
         <jar destfile="${dir.jarfile}/IDG.jar" filesetmanifest="mergewithoutmain">
         	<fileset dir="${dir.workspace}" includes="log4j.xml"/>
             <manifest>
-                <attribute name="Main-Class" value="net.idg.GerdenServer"/>
+                <attribute name="Main-Class" value="net.idg.IDGServer"/>
                 <attribute name="Class-Path" value="."/>
             </manifest>
             <fileset dir="${dir.workspace}/bin"/>

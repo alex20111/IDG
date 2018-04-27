@@ -9,10 +9,13 @@ import org.apache.log4j.Logger;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 
 import home.misc.Exec;
-import net.idg.GerdenServer;
+import net.idg.IDGServer;
+import net.idg.bean.Sensor;
 import net.idg.bean.Status;
 import net.idg.bean.Temperature;
+import net.idg.db.SensorSql;
 import net.idg.db.entity.Config;
+import net.idg.db.entity.SensorStatus;
 import net.idg.utils.ServerUtils;
 
 public class TempThread implements Runnable { 
@@ -45,20 +48,23 @@ public class TempThread implements Runnable {
 				if (now.getTime() - prevHeaterOn.getTime() > (60000 * 30)) {
 					heatPin.low();
 					Status.heaterOn = false;
-					log.debug("Heater has been running more than 30 min. Shutting down. " + temp.getTemp());
+					String msg = "Heater has been running more than 30 min. Shutting down. " + temp.getTemp();
+					addStatus(Sensor.HEATER, temp, false, msg);
+					log.debug(msg);
 				}
 			}
 			
-			GerdenServer.display("Temp: " + temp.getTemp() + "C" , "Humidity: "+temp.getHumidity()+"%"); //LCD display
+			IDGServer.display("Temp: " + temp.getTemp() + "C" , "Humidity: "+temp.getHumidity()+"%"); //LCD display
 			if (monitorTemp && temp != null && temp.isTempValidValue()){
-				Config cfg = GerdenServer.getConfig();
+				Config cfg = IDGServer.getConfig();
 				
 				if (temp.getTempDouble() > (cfg.getMaintainTempAt() + 1) && Status.heaterOn ){
 					log.debug("Heater off. temp: " + temp.getTemp());
 					//turn heater off
 					Status.heaterOn = false;
 					heatPin.low();
-					GerdenServer.display("Heat Off" , ""); //LCD display
+					IDGServer.display("Heat Off" , ""); //LCD display
+					addStatus(Sensor.HEATER, temp, false, "Heater off");
 				}else if (temp.getTempDouble() < (cfg.getMaintainTempAt() - 1) && !Status.heaterOn){
 					log.debug("Heater on. temp: " + temp.getTemp());
 
@@ -66,15 +72,17 @@ public class TempThread implements Runnable {
 					//turn heater on
 					Status.heaterOn = true; 
 					heatPin.high();
-					GerdenServer.display("Heat On" , "");
+					IDGServer.display("Heat On" , "");
+					addStatus(Sensor.HEATER, temp, true, "Heater On");
 				} 
 			}else if (temp != null && (Status.heaterOn || heatPin.isHigh())) {
 				//no monitor , just verify that the heater is really turned off
 				Status.heaterOn = false;
 				heatPin.low();
+				addStatus(Sensor.HEATER, temp, false, "Safety heater off");
 			}
 			
-			if (!GerdenServer.isConfigPresent()){
+			if (!IDGServer.isConfigPresent()){
 				pause(5000);
 				String line2 = "";
 				String ip = ServerUtils.connectedToNetwork();
@@ -83,10 +91,10 @@ public class TempThread implements Runnable {
 				}else{
 					line2 = ip; 
 				}
-				GerdenServer.display("No Config", line2);
+				IDGServer.display("No Config", line2);
 			}else if(ServerUtils.connectedToNetwork().length() == 0){
 				pause(5000); 
-				GerdenServer.display("No network", "");
+				IDGServer.display("No network", "");
 			}
 			
 			dispDate();
@@ -123,7 +131,7 @@ public class TempThread implements Runnable {
 					tmp.setHumidity(th[1]);
 					tmp.setTempValidValue(true);
 					tmp.setLastUpdated(new Date());
-					
+					addStatus(Sensor.TEMPERATURE, temp, false, "Temerature reading");
 				}
 			}else {
 				log.debug("failed reading temp. Result null. Could be timeout ");
@@ -146,4 +154,25 @@ public class TempThread implements Runnable {
 			prevTempReading = new Date();
 		}
 	}
+	
+	private void addStatus(Sensor sensor, Temperature temp, boolean heaterOn, String message ) {
+		SensorStatus stat = new SensorStatus();
+		SensorSql sql = new SensorSql();
+		
+		stat.setComment(message);
+		stat.setSensor(sensor);
+		stat.setRecordedDate(new Date());
+		stat.setField1(temp.getTemp());
+		stat.setField2(temp.getHumidity());
+		if (sensor == Sensor.HEATER) {
+			stat.setField3(String.valueOf(heaterOn));
+		}
+		
+		try {
+			sql.add(stat);
+		} catch (Exception e) {
+			log.error("Error writing to DB", e);
+		} 
+	}
+	
 }

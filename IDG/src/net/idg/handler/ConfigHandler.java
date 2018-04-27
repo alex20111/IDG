@@ -14,7 +14,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 import home.misc.Exec;
-import net.idg.GerdenServer;
+import net.idg.IDGServer;
 import net.idg.bean.HtmlPageText;
 import net.idg.bean.Status;
 import net.idg.db.ConfigSql;
@@ -34,7 +34,7 @@ public class ConfigHandler implements HttpHandler {
 			log.debug("query: " + query);
 			if (query == null){
 				HtmlPageText cfgPage = new HtmlPageText();
-				configPage = cfgPage.buildConfigPage(GerdenServer.getConfig(),getSSIDs());
+				configPage = cfgPage.buildConfigPage(IDGServer.getConfig(),getSSIDs());
 			}else if (query != null && 
 			query.get(Config.ENB_WIRELESS) != null && !Status.currentSSID.equals(query.get(Config.SSID)) &&
 			query.get(Config.SSID).length() > 0 &&
@@ -43,14 +43,14 @@ public class ConfigHandler implements HttpHandler {
 			{
 				configPage ="<html><body>Error. New SSID, You need the password if the wireless IS enabled <br/>" 
 						+ " <form action=\"/cfg\" > <input type=\"submit\" value=\"Ok\"/> </form> </body></html>";
-				GerdenServer.getConfig().setEnableWireless(true);
+				IDGServer.getConfig().setEnableWireless(true);
 			}else{
 				configPage = "<htm|><body>Success<br/><br/><form action=\"/cfg\" > <input type=\"submit\" value=\"Ok\"/> </form></body></html>";
 				saveConfig(query); //save properties
-				GerdenServer.getSchedManager().stopSchedules();
-				GerdenServer.getSchedManager().startRestartSchedules();
+				IDGServer.getSchedManager().stopSchedules();
+				IDGServer.getSchedManager().startRestartSchedules();
 
-				Config cfg = GerdenServer.getConfig();
+				Config cfg = IDGServer.getConfig();
 				if (cfg.isEnableWireless() &&
 						!Status.currentSSID.equals(cfg.getSsid()) && !cfg.getSsid().equals("nowifi") ){
 					log.debug("new wireless. SSID: " + cfg.getSsid()); //restart wireless
@@ -110,7 +110,7 @@ public class ConfigHandler implements HttpHandler {
 		} 
 		 
 		 
-		GerdenServer.loadConfig(); 
+		IDGServer.loadConfig(); 
 	}
 	private List<String> getSSIDs(){
 
