@@ -25,6 +25,10 @@ public class CreateTables {
 			cfgSql.add(cfg);			
 		}
 		
+		//create sensor status
+		SensorSql sensorSql = new SensorSql();
+		sensorSql.CreateSensorTable();
+		
 		
 	}
 }

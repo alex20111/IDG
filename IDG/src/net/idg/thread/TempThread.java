@@ -26,7 +26,7 @@ public class TempThread implements Runnable {
 	
 	private static Date prevHeaterOn = null;	
 	private static Date prevTempReading = null;
-	private int delay = 60000; //in millis = 1 min
+	private int delay = 60000 * 5; //in millis = 1 min. So this is 5 min
 
 	public TempThread(){}
 	public TempThread(boolean monitor, GpioPinDigitalOutput heatPin){
@@ -131,7 +131,7 @@ public class TempThread implements Runnable {
 					tmp.setHumidity(th[1]);
 					tmp.setTempValidValue(true);
 					tmp.setLastUpdated(new Date());
-					addStatus(Sensor.TEMPERATURE, temp, false, "Temerature reading");
+					
 				}
 			}else {
 				log.debug("failed reading temp. Result null. Could be timeout ");
@@ -152,6 +152,7 @@ public class TempThread implements Runnable {
 		if (new Date().getTime() - prevTempReading.getTime() > delay) {
 			log.debug("temp: " + temp.getTemp() + " " + temp.getHumidity());
 			prevTempReading = new Date();
+			addStatus(Sensor.TEMPERATURE, temp, false, "Temerature reading");
 		}
 	}
 	

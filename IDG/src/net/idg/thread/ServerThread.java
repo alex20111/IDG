@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpServer;
 
 import net.idg.handler.ConfigHandler;
 import net.idg.handler.DashBoardHandler;
+import net.idg.handler.TableHandler;
 
 @SuppressWarnings("restriction")
 public class ServerThread implements Runnable{
@@ -21,6 +22,7 @@ public class ServerThread implements Runnable{
 			HttpServer server = HttpServer.create(new InetSocketAddress(80), 0);
 			server.createContext("/cfg", new ConfigHandler());
 			server.createContext("/", new DashBoardHandler());
+			server.createContext("/graph", new TableHandler());
 			server.setExecutor(null); // creates a default executor
 			server.start();
 		}catch(Throwable tr){

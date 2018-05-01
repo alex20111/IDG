@@ -92,18 +92,6 @@ public class IDGServer {
 			lcd.write(0, line1);
 			lcd.write(1, line2);
 		}
-//		try {
-//			Exec e = new Exec();
-//			e.addCommand("python").handleQuoting(false).addCommand("/home/pi/i2clcda.py")
-//			.addCommand(line1).addCommand(line2).timeout(4000);
-//
-//			int result = e.run();
-//			if (result > 0) {
-//				log.error("Result greather than 0 to display on LCD. " + e.getOutput());
-//			}
-//		} catch (IOException e1) {
-//			log.error("Error writing to lcd", e1);
-//		}
 
 	}
 	public static synchronized void loadConfig() {

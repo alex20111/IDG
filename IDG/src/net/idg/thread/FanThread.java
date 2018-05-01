@@ -41,14 +41,9 @@ public class FanThread implements Runnable {
 			
 				if (temp.getHumidityDouble() > 50 ) {//&&  !Status.fanOn) {
 					//turn fan on
-//					Status.fanOn = true;
-//					fanPin.high();
 					hunidityTooHigh = true;
 					log.debug("Humidity high: " + temp.getHumidity());
 				}else if ( temp.getHumidityDouble() < 45 ) {//&& Status.fanOn ) {
-//					Status.fanOn = false;
-//					fanPin.low();
-//					log.debug("Humidity normal : " + temp.getHumidity());
 					hunidityTooHigh = false;
 			
 			}
@@ -58,25 +53,19 @@ public class FanThread implements Runnable {
 			if (cfg.isEnableTempMon() ) {
 			
 					if (temp.getTempDouble() >  (cfg.getMaintainTempAt() + 2) ) {//&& !Status.fanOn) {
-//						Status.fanOn = true;
-//						fanPin.high();
 						log.debug("Temperature high: " + temp.getTemp());
 						heatTooHigh = true;
 					}else if(temp.getTempDouble() <  cfg.getMaintainTempAt() ) {//  && Status.fanOn){
-//						Status.fanOn = false;
-//						fanPin.low();
-//						log.debug("Temperature normal: " + temp.getTemp());
 						heatTooHigh = false;
 					}
-				}
-			
+				}			
 		}
 
 
 		if ( (hunidityTooHigh || heatTooHigh || airCirculation) && !Status.fanOn) {
 			Status.fanOn = true;
 			fanPin.high();
-			String msg = "Turning fan on. Humidity TooHigh: " + hunidityTooHigh + " Heat Too High: " + heatTooHigh + " Air Circulation: " + airCirculation;
+			String msg = "Turning fan on. Humidity TooHigh: " + hunidityTooHigh + ". Heat Too High: " + heatTooHigh + ". Air Circulation: " + airCirculation;
 			addStatus(true,msg );
 			log.debug(msg);
 		}else if(!hunidityTooHigh && !heatTooHigh && !airCirculation && Status.fanOn){
