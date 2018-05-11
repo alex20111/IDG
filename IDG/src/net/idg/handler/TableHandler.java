@@ -72,8 +72,11 @@ public class TableHandler implements HttpHandler {
 					tempTable.append("<td>" + sdf.format(s.getRecordedDate())+"</td>");
 					tempTable.append("</tr>");
 				}else if(s.getSensor() == Sensor.HEATER) {
+					String boolVal = s.getField1();
+//					if (boolVal != null && boolVal.)
+					
 					heaterTable.append("<tr>");
-					heaterTable.append("<td>"+s.getField1()+"</td>");
+					heaterTable.append("<td>"+String.valueOf(s.getField1())+"</td>");
 					heaterTable.append("<td>" + sdf.format(s.getRecordedDate())+"</td>");
 					heaterTable.append("</tr>");
 				}
